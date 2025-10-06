@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Cookie Clicker Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f8e0c4, #f0f0f0);
+      height: 100vh;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* 🍪 Cookie */
+    #cookie-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    #cookie {
+      width: 300px;
+      height: 300px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/7/74/Cookie.png') no-repeat center;
+      background-size: cover;
+      cursor: pointer;
+      border-radius: 50%;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+      transition: transform 0.1s ease;
+    }
+
+    #cookie:active {
+      transform: scale(0.9);
+    }
+
+    /* 👵 Omas-Bereich */
+    #grandma-container {
+      flex: 0.8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-right: 10px;
+    }
+
+    .grandma {
+      width: 120px;
+      height: 120px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/d/d6/Old_woman_cartoon.svg') no-repeat center;
+      background-size: contain;
+      position: relative;
+      animation: wiggle 2s infinite ease-in-out;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(2deg); }
+    }
+
+    #grandma-count {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-weight: bold;
+      color: #3a1f04;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    /* 🪵 Holzstand */
+    #store-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 40px;
+      gap: 25px;
+    }
+
+    #store {
+      position: relative;
+      width: 260px;
+      background: linear-gradient(45deg, #b77a3f 0%, #9b5e2e 100%);
+      border: 4px solid #5a3310;
+      border-radius: 0 0 10px 10px;
+      padding: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #store::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      left: -4px;
+      width: calc(100% + 8px);
+      height: 40px;
+      background: repeating-linear-gradient(
+        90deg,
+        #ff4d4d 0px,
+        #ff4d4d 25px,
+        #ffffff 25px,
+        #ffffff 50px
+      );
+      border: 4px solid #5a3310;
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      box-shadow: inset 0 -3px 5px rgba(0,0,0,0.3);
+    }
+
+    #store h2 {
+      margin-top: 10px;
+      font-size: 22px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom: 8px;
+    }
+
+    .upgrade {
+      background-color: #fff8f0;
+      color: #3a1f04;
+      border: 2px solid #5a3310;
+      padding: 10px;
+      margin-top: 12px;
+      width: 100%;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    .upgrade:hover {
+      background-color: #ffe0e0;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+    }
+
+    .upgrade:active {
+      transform: scale(0.97);
+    }
+
+    /* 📊 Scoreboard */
+    #scoreboard {
+      background: linear-gradient(45deg, #d4a76a, #a8743c);
+      border: 4px solid #5a3310;
+      border-radius: 10px;
+      padding: 15px 25px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+      font-size: 18px;
+      min-width: 200px;
+      text-align: left;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    #scoreboard h3 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    }
+
+    #scoreboard span {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cookie -->
+  <div id="cookie-container">
+    <div id="cookie" onclick="clickCookie()"></div>
+  </div>
+
+  <!-- 👵 Omas -->
+  <div id="grandma-container">
+    <div id="grandma-list"></div>
+    <div id="grandma-count">Omas: 0</div>
+  </div>
+
+  <!-- Holzladen + Score -->
+  <div id="store-container">
+    <div id="store">
+      <h2>Laden</h2>
+      <button class="upgrade" onclick="buyUpgrade(1)">Besserer Cursor (10 Punkte)</button>
+      <button class="upgrade" onclick="buyUpgrade(2)">Goldener Cursor (100 Punkte)</button>
+      <button class="upgrade" onclick="buyUpgrade(3)">Oma (150 Punkte)</button>
+    </div>
+
+    <div id="scoreboard">
+      <h3>Statistik</h3>
+      <div>Punkte: <span id="score">0</span></div>
+      <div>Cursor-Level: <span id="cursorLevel">1</span></div>
+      <div>Omas: <span id="grandmas">0</span></div>
+      <div>Cookies pro Klick: <span id="perClick">1</span></div>
+      <div>Cookies pro Sekunde: <span id="perSecond">0</span></div>
+    </div>
+  </div>
+
+<script>
+  let score = 0;
+  let clickValue = 1;
+  let cursorLevel = 1;
+  let grandmas = 0;
+
+  const scoreDisplay = document.getElementById("score");
+  const grandmaDisplay = document.getElementById("grandmas");
+  const cursorLevelDisplay = document.getElementById("cursorLevel");
+  const perClickDisplay = document.getElementById("perClick");
+  const perSecondDisplay = document.getElementById("perSecond");
+  const grandmaList = document.getElementById("grandma-list");
+  const grandmaCountDisplay = document.getElementById("grandma-count");
+
+  function clickCookie() {
+    score += clickValue;
+    updateScore();
+  }
+
+  function updateScore() {
+    scoreDisplay.textContent = score;
+    grandmaDisplay.textContent = grandmas;
+    cursorLevelDisplay.textContent = cursorLevel;
+    perClickDisplay.textContent = clickValue;
+    perSecondDisplay.textContent = grandmas; // Omas = 1 Cookie pro Sekunde
+  }
+
+  function buyUpgrade(type) {
+    if (type === 1 && score >= 10) {
+      score -= 10;
+      cursorLevel++;
+      clickValue += 1; // Besserer Cursor = +1 pro Klick
+    } 
+    else if (type === 2 && score >= 100) {
+      score -= 100;
+      cursorLevel++;
+      clickValue += 5; // Goldener Cursor = +5 pro Klick
+    } 
+    else if (type === 3 && score >= 150) {
+      score -= 150;
+      grandmas++;
+      addGrandma();
+    }
+    updateScore();
+  }
+
+  function addGrandma() {
+    const g = document.createElement("div");
+    g.classList.add("grandma");
+    grandmaList.appendChild(g);
+    grandmaCountDisplay.textContent = `Omas: ${grandmas}`;
+  }
+
+  // Omas produzieren automatisch Cookies
+  setInterval(() => {
+    score += grandmas;
+    updateScore();
+  }, 1000);
+</script>
+
+</body>
+</html>
+
+
+
